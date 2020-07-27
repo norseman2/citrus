@@ -1,0 +1,13 @@
+service: citrus
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+functions:
+  createMaintenanceTask:
+    handler: handler.createMaintenanceTask
+    events:
+      - http:
+          path: /maintenance-task
+          method: post
