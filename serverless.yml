@@ -1,8 +1,24 @@
 service: citrus
 
+plugins:
+  - serverless-pseudo-parameters
+
 provider:
   name: aws
   runtime: nodejs12.x
+  
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+      Resource:
+        - arn:aws:dynamodb:#{AWS::Region}:#{AWS::AccountId}:table/maintenanceTasksTable
+    - Effect: Allow
+      Action:
+        - kinesis:PutRecord
+      Resource:
+        - arn:aws:kinesis:#{AWS::Region}:#{AWS::AccountId}:stream/maintenance-task-events
 
 functions:
   createMaintenanceTask:
@@ -11,3 +27,34 @@ functions:
       - http:
           path: /maintenance-task
           method: post
+    environment:
+      maintenanceTaskTableName: maintenanceTasksTable
+      maintenanceTaskStreamName: maintenance-task-events
+  scheduleMaintenanceTask:
+    handler: handler.scheduleMaintenanceTask
+    events:
+      - http:
+          path: /maintenance-task/schedule
+          method: post
+    environment:
+      maintenanceTaskTableName: maintenanceTasksTable
+      maintenanceTaskStreamName: maintenance-task-events
+
+resources:
+  Resources:
+    maintenanceTaskEventsStream:
+      Type: AWS::Kinesis::Stream
+      Properties:
+        Name: maintenance-task-events
+        ShardCount: 1
+    maintenanceTaskTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: maintenanceTasksTable
+        AttributeDefinitions:
+          - AttributeName: "taskId"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "taskId"
+            KeyType: "HASH"
+        BillingMode: PAY_PER_REQUEST
