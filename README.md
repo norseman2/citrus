@@ -1,10 +1,10 @@
 # citrus
 
-##technical scope
+## technical scope
 
-AWS
-Serverless framework
-AWS Lambda
-API Gateway
-Kinesis
-DynamoDB
+* AWS
+* Serverless framework
+* AWS Lambda
+* API Gateway
+* Kinesis
+* DynamoDB
