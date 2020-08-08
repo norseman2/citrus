@@ -1,5 +1,9 @@
 # citrus
 
+## functional scope
+
+* (abstract) task manager
+
 ## technical scope
 
 * AWS
